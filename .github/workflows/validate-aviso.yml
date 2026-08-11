@@ -5,7 +5,6 @@ on:
     paths:
       - ".exports/QGIS-geoJSON/**/*.geojson"
       - ".scripts/validate_aviso.py"
-      - ".scripts/build_preview.py"
       - ".github/workflows/validate-aviso.yml"
 
 permissions:
@@ -45,60 +44,7 @@ jobs:
             ${{ steps.changed.outputs.all_changed_files }} \
             > aviso-report.md
 
-      - name: Build merged preview GeoJSON
-        if: steps.changed.outputs.any_changed == 'true'
-        shell: bash
-        run: |
-          python .scripts/build_preview.py \
-            ${{ steps.changed.outputs.all_changed_files }}
-
-      - name: Add web preview links to report
-        if: steps.changed.outputs.any_changed == 'true'
-        shell: bash
-        env:
-          REPOSITORY: ${{ github.repository }}
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-          REPOSITORY_NAME: ${{ github.event.repository.name }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          echo >> aviso-report.md
-          echo "### 🌐 Visual preview" >> aviso-report.md
-          echo >> aviso-report.md
-
-          python - <<'PY' >> aviso-report.md
-          import json
-          import os
-          from pathlib import Path
-          from urllib.parse import urlencode
-
-          manifest_path = Path("aviso-preview/manifest.json")
-          if not manifest_path.exists():
-              raise SystemExit(0)
-
-          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-
-          base = (
-              f"https://{os.environ['REPOSITORY_OWNER']}.github.io/"
-              f"{os.environ['REPOSITORY_NAME']}/preview/"
-          )
-
-          for item in manifest:
-              query = urlencode({
-                  "repo": os.environ["REPOSITORY"],
-                  "pr": os.environ["PR_NUMBER"],
-                  "fir": item["fir"],
-                  "icao": item["icao"],
-              })
-              print(
-                  f"- [{item['icao']} interactive preview]({base}?{query}) "
-                  f"— REGIONS → GEO → FREETEXT"
-              )
-          PY
-
-          echo >> aviso-report.md
-          echo "_Merged preview GeoJSON files are also available as a workflow artifact._" >> aviso-report.md
-
-      - name: Create empty-change report
+      - name: Create no-change report
         if: steps.changed.outputs.any_changed != 'true'
         shell: bash
         run: |
@@ -107,15 +53,6 @@ jobs:
             echo
             echo "No changed GeoJSON files found in \`.exports/QGIS-geoJSON/\`."
           } > aviso-report.md
-
-      - name: Upload merged preview GeoJSON
-        if: steps.changed.outputs.any_changed == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: aviso-geojson-preview-pr-${{ github.event.pull_request.number }}
-          path: aviso-preview/
-          if-no-files-found: error
-          retention-days: 14
 
       - name: Add report to workflow summary
         if: always()

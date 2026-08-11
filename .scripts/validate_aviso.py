@@ -2,10 +2,10 @@
 import json
 import re
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 EXPORT_ROOT = Path(".exports/QGIS-geoJSON")
+
 FILENAME_RE = re.compile(
     r"^(?P<fir>[A-Z]{4})_(?P<icao>[A-Z]{4})_(?P<layer>FREETEXT|GEO|REGIONS)\.geojson$"
 )
@@ -25,39 +25,50 @@ REQUIRED_FIELDS = {
 LAYERS = ("FREETEXT", "GEO", "REGIONS")
 
 
-def airport_from_changed_path(path: Path):
+def airport_from_path(path: Path):
     try:
         rel = path.relative_to(EXPORT_ROOT)
     except ValueError:
         return None
 
+    # Expected:
+    # .exports/QGIS-geoJSON/{FIR}/{ICAO}/{FIR}_{ICAO}_{TYPE}.geojson
     if len(rel.parts) != 3:
         return None
 
-    folder_fir, folder_icao, filename = rel.parts
+    fir, icao, filename = rel.parts
+
+    if not re.fullmatch(r"[A-Z]{4}", fir):
+        return None
+    if not re.fullmatch(r"[A-Z]{4}", icao):
+        return None
+
     match = FILENAME_RE.match(filename)
     if not match:
-        return (folder_fir, folder_icao)
+        return (fir, icao)
 
-    return (match.group("fir"), match.group("icao"))
+    return (fir, icao)
 
 
-def validate_file(path: Path, expected_fir: str, expected_icao: str, layer: str):
+def validate_file(path: Path, fir: str, icao: str, layer: str):
     errors = []
+
     result = {
-        "file": path.as_posix(),
         "name": path.name,
-        "fir": expected_fir,
-        "icao": expected_icao,
+        "path": path.as_posix(),
+        "fir": fir,
+        "icao": icao,
         "layer": layer,
         "count": 0,
         "errors": errors,
     }
 
-    expected_name = f"{expected_fir}_{expected_icao}_{layer}.geojson"
+    expected_filename = f"{fir}_{icao}_{layer}.geojson"
 
-    if path.name != expected_name:
-        errors.append(f"Filename is {path.name!r}; expected {expected_name!r}")
+    if path.name != expected_filename:
+        errors.append(
+            f"Filename is {path.name!r}; expected {expected_filename!r}"
+        )
 
     if not path.exists():
         errors.append("Required AVISO file is missing")
@@ -73,10 +84,11 @@ def validate_file(path: Path, expected_fir: str, expected_icao: str, layer: str)
     if data.get("type") != "FeatureCollection":
         errors.append("Root object must be a FeatureCollection")
 
-    expected_collection_name = f"{expected_fir}_{expected_icao}_{layer}"
-    if data.get("name") not in (None, expected_collection_name):
+    expected_collection_name = f"{fir}_{icao}_{layer}"
+    collection_name = data.get("name")
+    if collection_name not in (None, expected_collection_name):
         errors.append(
-            f"Collection name is {data.get('name')!r}; "
+            f"Collection name is {collection_name!r}; "
             f"expected {expected_collection_name!r}"
         )
 
@@ -102,19 +114,20 @@ def validate_file(path: Path, expected_fir: str, expected_icao: str, layer: str)
         missing = REQUIRED_FIELDS[layer] - set(properties)
         if missing:
             errors.append(
-                f"Feature {index}: missing field(s): {', '.join(sorted(missing))}"
+                f"Feature {index}: missing field(s): "
+                + ", ".join(sorted(missing))
             )
 
-        if properties.get("fir") != expected_fir:
+        if properties.get("fir") != fir:
             errors.append(
                 f"Feature {index}: fir={properties.get('fir')!r}; "
-                f"expected {expected_fir!r}"
+                f"expected {fir!r}"
             )
 
-        if properties.get("icao") != expected_icao:
+        if properties.get("icao") != icao:
             errors.append(
                 f"Feature {index}: icao={properties.get('icao')!r}; "
-                f"expected {expected_icao!r}"
+                f"expected {icao!r}"
             )
 
         if not properties.get("type"):
@@ -134,73 +147,82 @@ def validate_file(path: Path, expected_fir: str, expected_icao: str, layer: str)
         if geometry_type not in EXPECTED_GEOMETRY[layer]:
             expected = ", ".join(sorted(EXPECTED_GEOMETRY[layer]))
             errors.append(
-                f"Feature {index}: geometry is {geometry_type!r}; expected {expected}"
+                f"Feature {index}: geometry is {geometry_type!r}; "
+                f"expected {expected}"
             )
 
     return result
 
 
 def main():
-    changed = [Path(arg) for arg in sys.argv[1:] if arg.lower().endswith(".geojson")]
+    changed_paths = [
+        Path(arg)
+        for arg in sys.argv[1:]
+        if arg.lower().endswith(".geojson")
+    ]
 
     airports = set()
-    path_errors = []
+    invalid_paths = []
 
-    for path in changed:
-        airport = airport_from_changed_path(path)
+    for path in changed_paths:
+        airport = airport_from_path(path)
+
         if airport is None:
-            continue
-        fir, icao = airport
-        if not re.fullmatch(r"[A-Z]{4}", fir or "") or not re.fullmatch(r"[A-Z]{4}", icao or ""):
-            path_errors.append(
+            invalid_paths.append(
                 f"`{path.as_posix()}` — invalid path; expected "
                 ".exports/QGIS-geoJSON/{FIR}/{ICAO}/{FIR}_{ICAO}_{TYPE}.geojson"
             )
             continue
-        airports.add((fir, icao))
+
+        airports.add(airport)
 
     print("## 🗺️ AVISO Ground Layout")
     print()
 
-    if not airports:
-        print("No changed airport GeoJSON files found in `.exports/QGIS-geoJSON/`.")
-        if path_errors:
-            print()
-            print("### ❌ Validation failed")
-            for error in path_errors:
-                print(f"- {error}")
-            return 1
+    if not airports and not invalid_paths:
+        print("No changed AVISO GeoJSON files found.")
         return 0
 
-    all_errors = list(path_errors)
+    all_errors = list(invalid_paths)
 
     for fir, icao in sorted(airports):
-        results = []
-        for layer in LAYERS:
-            path = EXPORT_ROOT / fir / icao / f"{fir}_{icao}_{layer}.geojson"
-            results.append(validate_file(path, fir, icao, layer))
-
         print(f"### {icao} ({fir})")
         print()
         print("| File | Features | Status |")
         print("|---|---:|:---:|")
 
         total = 0
-        for result in results:
+        results = []
+
+        for layer in LAYERS:
+            path = EXPORT_ROOT / fir / icao / f"{fir}_{icao}_{layer}.geojson"
+            result = validate_file(path, fir, icao, layer)
+            results.append(result)
+
             total += result["count"]
             status = "❌" if result["errors"] else "✅"
-            print(f"| `{result['name']}` | {result['count']} | {status} |")
-            for error in result["errors"]:
-                all_errors.append(f"`{result['name']}` — {error}")
+
+            print(
+                f"| `{result['name']}` | "
+                f"{result['count']} | {status} |"
+            )
 
         print(f"| **Total** | **{total}** | |")
         print()
 
+        for result in results:
+            for error in result["errors"]:
+                all_errors.append(
+                    f"`{result['name']}` — {error}"
+                )
+
     if all_errors:
         print("### ❌ Validation failed")
         print()
+
         for error in all_errors:
             print(f"- {error}")
+
         print()
         print(f"**{len(all_errors)} validation issue(s) found.**")
         return 1
@@ -212,6 +234,7 @@ def main():
     print("- Expected geometry types are used")
     print("- Required fields are present")
     print("- FREETEXT, GEO and REGIONS are present for each changed airport")
+
     return 0
 
 

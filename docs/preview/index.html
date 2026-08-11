@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AVISO Ground Layout Preview</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIINfQ3yn5nIoeI0bMZbJH/6kJp7H3JH0mQ="
+    crossorigin=""
+  >
+
+  <style>
+    html, body, #map {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #status {
+      position: absolute;
+      z-index: 1000;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 20, 20, 0.88);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 7px;
+      font-size: 14px;
+      max-width: calc(100% - 40px);
+      text-align: center;
+    }
+
+    .aviso-label {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      color: #ffffff;
+      font-weight: 600;
+      text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+      white-space: nowrap;
+    }
+
+    .leaflet-control-layers {
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Loading AVISO preview…</div>
+  <div id="map"></div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const repo = params.get("repo");
+    const pr = params.get("pr");
+    const fir = params.get("fir");
+    const icao = params.get("icao");
+
+    const status = document.getElementById("status");
+    const map = L.map("map", { preferCanvas: true });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 21,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Preview palette. This is visualisation only; it is NOT style validation.
+    const regionColors = {
+      background: "#202020",
+      taxiway: "rgb(89,94,91)",
+      grass: "rgb(0,81,47)",
+      unused: "#555555",
+      runway: "rgb(85,85,85)",
+      grass_taxiway: "#397a4b",
+      grass_runway: "#2c663e",
+      cati: "#6d6d6d",
+      catii: "#737373",
+      catiii: "#797979",
+      apron: "rgb(138,127,127)",
+      building: "rgb(57,68,70)"
+    };
+
+    const geoColors = {
+      gate_centerline: "rgb(192,182,49)",
+      ihp: "rgb(204,109,0)"
+    };
+
+    function regionStyle(feature) {
+      const type = feature.properties?.type || "";
+      const color = regionColors[type] || "#777777";
+      return {
+        color,
+        fillColor: color,
+        weight: type === "background" ? 0 : 1,
+        opacity: 1,
+        fillOpacity: type === "background" ? 0.65 : 0.9
+      };
+    }
+
+    function geoStyle(feature) {
+      const type = feature.properties?.type || "";
+      const color = geoColors[type] || "#ffd84d";
+      return {
+        color,
+        weight: type === "ihp" ? 3 : 2,
+        opacity: 1
+      };
+    }
+
+    function freetextPoint(feature, latlng) {
+      const text = feature.properties?.freetext ?? "";
+      return L.marker(latlng, {
+        interactive: false,
+        icon: L.divIcon({
+          className: "aviso-label",
+          html: String(text)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;"),
+          iconSize: null
+        })
+      });
+    }
+
+    async function getJson(url) {
+      const response = await fetch(url, {
+        headers: { "Accept": "application/vnd.github+json" }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    }
+
+    async function load() {
+      if (!repo || !pr || !fir || !icao) {
+        throw new Error("Missing repo, pr, fir or icao query parameter.");
+      }
+
+      const [owner, repository] = repo.split("/");
+      if (!owner || !repository) {
+        throw new Error("Invalid repo parameter.");
+      }
+
+      const pull = await getJson(
+        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}/pulls/${encodeURIComponent(pr)}`
+      );
+
+      const headRepo = pull.head?.repo?.full_name;
+      const sha = pull.head?.sha;
+
+      if (!headRepo || !sha) {
+        throw new Error("Could not determine the pull request head repository.");
+      }
+
+      const [headOwner, headName] = headRepo.split("/");
+      const basePath = `.exports/QGIS-geoJSON/${fir}/${icao}`;
+      const rawBase =
+        `https://raw.githubusercontent.com/${encodeURIComponent(headOwner)}/${encodeURIComponent(headName)}/${encodeURIComponent(sha)}/${basePath}`;
+
+      const urls = {
+        REGIONS: `${rawBase}/${fir}_${icao}_REGIONS.geojson`,
+        GEO: `${rawBase}/${fir}_${icao}_GEO.geojson`,
+        FREETEXT: `${rawBase}/${fir}_${icao}_FREETEXT.geojson`
+      };
+
+      const [regions, geo, freetext] = await Promise.all([
+        getJson(urls.REGIONS),
+        getJson(urls.GEO),
+        getJson(urls.FREETEXT)
+      ]);
+
+      // Pane z-indexes enforce the required AVISO draw order:
+      // REGIONS bottom, GEO above, FREETEXT top.
+      map.createPane("regionsPane");
+      map.getPane("regionsPane").style.zIndex = 300;
+
+      map.createPane("geoPane");
+      map.getPane("geoPane").style.zIndex = 400;
+
+      map.createPane("freetextPane");
+      map.getPane("freetextPane").style.zIndex = 500;
+      map.getPane("freetextPane").style.pointerEvents = "none";
+
+      const regionsLayer = L.geoJSON(regions, {
+        pane: "regionsPane",
+        style: regionStyle
+      }).addTo(map);
+
+      const geoLayer = L.geoJSON(geo, {
+        pane: "geoPane",
+        style: geoStyle
+      }).addTo(map);
+
+      const freetextLayer = L.geoJSON(freetext, {
+        pane: "freetextPane",
+        pointToLayer: freetextPoint
+      }).addTo(map);
+
+      L.control.layers(
+        null,
+        {
+          "REGIONS": regionsLayer,
+          "GEO": geoLayer,
+          "FREETEXT": freetextLayer
+        },
+        { collapsed: false }
+      ).addTo(map);
+
+      const combined = L.featureGroup([regionsLayer, geoLayer, freetextLayer]);
+      const bounds = combined.getBounds();
+
+      if (bounds.isValid()) {
+        map.fitBounds(bounds.pad(0.08));
+      } else {
+        map.setView([46.5, 2.5], 6);
+      }
+
+      status.textContent =
+        `${fir} / ${icao} — PR #${pr} — REGIONS → GEO → FREETEXT`;
+      document.title = `${icao} AVISO Preview — PR #${pr}`;
+    }
+
+    load().catch((error) => {
+      console.error(error);
+      status.textContent = `Preview failed: ${error.message}`;
+      map.setView([46.5, 2.5], 6);
+    });
+  </script>
+</body>
+</html>

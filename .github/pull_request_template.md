@@ -188,5 +188,3 @@ on this pull request.
 Files outside .exports/QGIS-geoJSON/ are not part of this GeoJSON
 validation.
 -->
-
-<!-- markdownlint-disable-file MD041 -->

@@ -9,7 +9,9 @@ This repository is designed to support **collaboration, maintenance, and issue t
 ---
 
 > ⚠️ **Important:**  
-> This repository does **not** contain the converted and ready to use AVISO files (such as the .sct and .ese file). The AVISOs in this repository are automatically added to the French vACC Controller Pack & Sector File every 28-days following the AIRAC cycle dates.
+> This repository does **not** contain the converted, ready-to-use AVISO files (such as `.sct` and `.ese` files).
+>
+> The AVISOs in this repository are automatically included in the French vACC Controller Pack & Sector File every 28 days, in accordance with the AIRAC cycle dates.
 
 ---
 

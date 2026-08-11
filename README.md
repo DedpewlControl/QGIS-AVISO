@@ -28,12 +28,3 @@ Did you spot an issue?
 https://github.com/vaccfr/qgis-aviso/issues/new?template=aviso-issue.md
 
 Clear and detailed reports help us fix things faster.
-
-## 🤝 Contributing
-
-We welcome contributions from the community. To collaborate:
-
-1. Fork this repository  
-2. Make your changes or improvements  
-3. Commit and push your updates  
-4. Open a Pull Request to the `main` branch for review

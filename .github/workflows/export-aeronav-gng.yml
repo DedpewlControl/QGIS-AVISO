@@ -71,7 +71,18 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         shell: bash
         run: |
-          if git diff --quiet -- .exports/AeroNav-GNG; then
+          echo "Generated AeroNav GNG files:"
+          find .exports/AeroNav-GNG -type f -print | sort || true
+
+          # Stage first so newly-created (untracked) files are included.
+          git add -A .exports/AeroNav-GNG
+
+          echo
+          echo "Staged changes:"
+          git status --short -- .exports/AeroNav-GNG
+
+          # git diff without --cached does not see newly-created untracked files.
+          if git diff --cached --quiet -- .exports/AeroNav-GNG; then
             echo "No AeroNav GNG output changes to commit."
             exit 0
           fi
@@ -79,6 +90,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add .exports/AeroNav-GNG
           git commit -m "chore: export AVISO for AeroNav GNG (PR #${PR_NUMBER})"
           git push origin "HEAD:${{ github.event.pull_request.base.ref }}"

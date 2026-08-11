@@ -1,4 +1,4 @@
-![alt text](https://raw.githubusercontent.com/DedpewlControl/QGIS-AVISO/refs/heads/main/.github/vaccfr_nav_ops_qgis_aviso_banner.jpg "French vACC QGIS AVISO Project Banner")
+![alt text](https://raw.githubusercontent.com/DedpewlControl/QGIS-AVISO/refs/heads/main/.github/img/vaccfr_nav_ops_qgis_aviso_banner.jpg "French vACC QGIS AVISO Project Banner")
 
 # French vACC QGIS AVISO Project
 

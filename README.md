@@ -25,6 +25,6 @@ Did you spot an issue?
 - General improvements or suggestions  
 
 👉 Please open an issue here:  
-https://github.com/vaccfr/qgis-aviso/issues/new?template=aviso-issue.md
+https://github.com/DedpewlControl/qgis-aviso/issues/new?template=aviso-issue.md
 
 Clear and detailed reports help us fix things faster.

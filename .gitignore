@@ -1,0 +1,23 @@
+# QGIS / SQLite temporary files
+*.gpkg-shm
+*.gpkg-wal
+*.sqlite-shm
+*.sqlite-wal
+
+# QGIS project backups
+*.qgs~
+*.qgz~
+*.qgs.bak
+*.qgz.bak
+
+# QGIS lock files
+*.qgs.lock
+*.qgz.lock
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS files
+.DS_Store
+Thumbs.db

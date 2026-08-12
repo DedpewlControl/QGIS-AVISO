@@ -430,7 +430,7 @@ def write_ese(airport: Airport, freetext_data: dict) -> int:
 
     The old source script called these "labels". In EuroScope ESE they belong
     under [FREETEXT], using:
-        latitude:longitude::text
+        latitude:longitude:text
     """
     label_count = 0
 
@@ -466,8 +466,8 @@ def write_ese(airport: Airport, freetext_data: dict) -> int:
         lat, lon = format_vertex(geometry["coordinates"])
         safe_text = str(text_value).replace(":", " ")
 
-        # Leave the group field empty; AeroNav GNG adds it during package export.
-        lines.append(f"{lat}:{lon}::{safe_text}")
+        # AeroNav GNG handles grouping during package export.
+        lines.append(f"{lat}:{lon}:{safe_text}")
         label_count += 1
 
     airport.ese_file.write_text("\n".join(lines) + "\n", encoding="utf-8")

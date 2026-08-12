@@ -1,0 +1,31 @@
+{
+"type": "FeatureCollection",
+"name": "LFBB_LFBA_FREETEXT",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 1, "fir": "LFBB", "icao": "LFBA", "type": "cati", "freetext": "W", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.589980307934324, 44.176077428511974 ] } },
+{ "type": "Feature", "properties": { "fid": 2, "fir": "LFBB", "icao": "LFBA", "type": "cati", "freetext": "M", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.591708181493732, 44.175541384131918 ] } },
+{ "type": "Feature", "properties": { "fid": 3, "fir": "LFBB", "icao": "LFBA", "type": "cati", "freetext": "E", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.596460170389135, 44.174162774742292 ] } },
+{ "type": "Feature", "properties": { "fid": 4, "fir": "LFBB", "icao": "LFBA", "type": "taxiway", "freetext": "N", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.59183892504835, 44.176485298062843 ] } },
+{ "type": "Feature", "properties": { "fid": 5, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "N2", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.592633760318485, 44.17694925458823 ] } },
+{ "type": "Feature", "properties": { "fid": 6, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "N1", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.592498403583217, 44.176777408389093 ] } },
+{ "type": "Feature", "properties": { "fid": 7, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "A2", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.594381426480777, 44.175912227001206 ] } },
+{ "type": "Feature", "properties": { "fid": 8, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "A1", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.593982347628417, 44.17577513681983 ] } },
+{ "type": "Feature", "properties": { "fid": 9, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "A3", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.594549964060961, 44.175605858242498 ] } },
+{ "type": "Feature", "properties": { "fid": 10, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "B2", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595267213427936, 44.175521015114334 ] } },
+{ "type": "Feature", "properties": { "fid": 11, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "B1", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595179994464471, 44.17535316202877 ] } },
+{ "type": "Feature", "properties": { "fid": 12, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "C1", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595663165874502, 44.175202385090664 ] } },
+{ "type": "Feature", "properties": { "fid": 13, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "C2", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595731335069839, 44.175326307404923 ] } },
+{ "type": "Feature", "properties": { "fid": 14, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "C3", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595809592628485, 44.175454483078596 ] } },
+{ "type": "Feature", "properties": { "fid": 15, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "C4", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595877787820891, 44.175577531604411 ] } },
+{ "type": "Feature", "properties": { "fid": 16, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "D1", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.596314860196068, 44.175019536641919 ] } },
+{ "type": "Feature", "properties": { "fid": 17, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "D2", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.596387295084273, 44.17515818088345 ] } },
+{ "type": "Feature", "properties": { "fid": 18, "fir": "LFBB", "icao": "LFBA", "type": "gate", "freetext": "D3", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.596463960829879, 44.175305818676883 ] } },
+{ "type": "Feature", "properties": { "fid": 19, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "TERMINAL", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.594168914590633, 44.176296186813232 ] } },
+{ "type": "Feature", "properties": { "fid": 20, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "ACB", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595191028154905, 44.176018749899519 ] } },
+{ "type": "Feature", "properties": { "fid": 21, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "AVT", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.595568255101282, 44.17580606223725 ] } },
+{ "type": "Feature", "properties": { "fid": 22, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "ACB", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.596762101541391, 44.17558605728545 ] } },
+{ "type": "Feature", "properties": { "fid": 23, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "AIRWAYS", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.591826110054841, 44.177076411971683 ] } },
+{ "type": "Feature", "properties": { "fid": 24, "fir": "LFBB", "icao": "LFBA", "type": "misc", "freetext": "PLANNEUR", "author": "DedpewlControl" }, "geometry": { "type": "Point", "coordinates": [ 0.593085332345451, 44.177127537338571 ] } }
+]
+}

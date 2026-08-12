@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - ".exports/QGIS-geoJSON/**/*.geojson"
-      - ".scripts/validate_aviso.py"
-      - ".github/workflows/validate-aviso.yml"
 
 permissions:
   contents: read

@@ -383,13 +383,11 @@ def write_sct(
                 )
 
             # No REGIONNAME line: AeroNav GNG adds region names during package export.
-            first_lat, first_lon = format_vertex(vertices[0])
-            lines.append(f"{color:<28}{first_lat} {first_lon}")
-            vertex_count += 1
+            lines.append(color)
 
-            for vertex in vertices[1:]:
+            for vertex in vertices:
                 lat, lon = format_vertex(vertex)
-                lines.append(f"{'':28}{lat} {lon}")
+                lines.append(f"{lat} {lon}")
                 vertex_count += 1
 
             lines.append("")

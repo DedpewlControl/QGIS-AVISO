@@ -74,6 +74,7 @@ REGION_COLORS = {
 
 GEO_COLORS = {
     "twy_centerline": "COLOR_TaxiwayGrey",
+    "runway_marking": "COLOR_RunwayBorder",
     "orange": "COLOR_TaxiwayOrange",
     "blue": "COLOR_TaxiwayBlue",
     "direction_red": "COLOR_Landmark1",

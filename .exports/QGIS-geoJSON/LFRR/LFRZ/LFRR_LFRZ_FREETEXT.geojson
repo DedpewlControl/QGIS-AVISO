@@ -1,0 +1,18 @@
+{
+"type": "FeatureCollection",
+"name": "LFRR_LFRZ_FREETEXT",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{"type":"Feature","properties":{"fid":1,"fir":"LFRR","icao":"LFRZ","type":"misc","freetext":"07","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.163750714552088,47.309246313912851]}},
+{"type":"Feature","properties":{"fid":2,"fir":"LFRR","icao":"LFRZ","type":"misc","freetext":"25","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.134575861852849,47.315127738490133]}},
+{"type":"Feature","properties":{"fid":3,"fir":"LFRR","icao":"LFRZ","type":"cati","freetext":"A","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.16554985934065,47.310415016535373]}},
+{"type":"Feature","properties":{"fid":4,"fir":"LFRR","icao":"LFRZ","type":"cati","freetext":"H1","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.160991365942397,47.311190222109154]}},
+{"type":"Feature","properties":{"fid":5,"fir":"LFRR","icao":"LFRZ","type":"misc","freetext":"B","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.156908024950477,47.312035887948902]}},
+{"type":"Feature","properties":{"fid":6,"fir":"LFRR","icao":"LFRZ","type":"ihp","freetext":"C","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.157056510077457,47.312846305014169]}},
+{"type":"Feature","properties":{"fid":7,"fir":"LFRR","icao":"LFRZ","type":"gate","freetext":"1","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.160980229557874,47.314107208718774]}},
+{"type":"Feature","properties":{"fid":8,"fir":"LFRR","icao":"LFRZ","type":"gate","freetext":"PRKG 2","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.15816272427345,47.313868117513437]}},
+{"type":"Feature","properties":{"fid":9,"fir":"LFRR","icao":"LFRZ","type":"terminal","freetext":"ACB","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.155720143934647,47.314947794474584]}},
+{"type":"Feature","properties":{"fid":10,"fir":"LFRR","icao":"LFRZ","type":"gate_secondary","freetext":"PRKG 1","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.160505077151543,47.313415099631527]}},
+{"type":"Feature","properties":{"fid":11,"fir":"LFRR","icao":"LFRZ","type":"misc","freetext":"H","author":"rmaure06"},"geometry":{"type":"Point","coordinates":[-2.163222354975257,47.31409210825359]}}
+]
+}

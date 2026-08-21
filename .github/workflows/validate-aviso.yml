@@ -1,7 +1,11 @@
 name: Validate AVISO GeoJSON
 
 on:
-  pull_request:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
     paths:
       - ".exports/QGIS-geoJSON/**/*.geojson"
 
@@ -15,32 +19,100 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout pull request
-        uses: actions/checkout@v4
+      # Trusted copy of the repository from the PR's base commit.
+      # The validation script is always executed from here.
+      - name: Checkout trusted base
+        uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
+
+      # Checkout the contributor's PR separately.
+      # Nothing executable from this directory must be run.
+      - name: Checkout pull request data
+        uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          path: pr
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
 
       - name: Find changed AVISO GeoJSON files
         id: changed
-        uses: tj-actions/changed-files@v46
-        with:
-          files: |
-            .exports/QGIS-geoJSON/**/*.geojson
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+            --jq '
+              .[]
+              | select(
+                  .filename
+                  | startswith(".exports/QGIS-geoJSON/")
+                    and endswith(".geojson")
+                )
+              | [.status, .filename]
+              | @tsv
+            ' > changed_files.tsv
+
+          if [[ -s changed_files.tsv ]]; then
+            echo "any_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Overlay only the PR's GeoJSON data onto the trusted base checkout.
+      # No Python, shell scripts, actions, etc. are copied from the PR.
+      - name: Prepare changed GeoJSON files
+        if: steps.changed.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          while IFS=$'\t' read -r status file; do
+            case "$file" in
+              .exports/QGIS-geoJSON/*.geojson)
+                ;;
+              *)
+                echo "::error::Unexpected file path: $file"
+                exit 1
+                ;;
+            esac
+
+            if [[ "$status" == "removed" ]]; then
+              rm -f -- "base/$file"
+              continue
+            fi
+
+            # Do not allow a PR to substitute a symlink for GeoJSON data.
+            if [[ -L "pr/$file" || ! -f "pr/$file" ]]; then
+              echo "::error::GeoJSON must be a regular file: $file"
+              exit 1
+            fi
+
+            mkdir -p -- "base/$(dirname "$file")"
+            cp -- "pr/$file" "base/$file"
+          done < changed_files.tsv
 
       - name: Validate changed airports
         id: validate
         if: steps.changed.outputs.any_changed == 'true'
         continue-on-error: true
+        working-directory: base
         shell: bash
         run: |
+          mapfile -t changed_files < <(
+            cut -f2 ../changed_files.tsv
+          )
+
           python .scripts/validate_aviso.py \
-            ${{ steps.changed.outputs.all_changed_files }} \
-            > aviso-report.md
+            "${changed_files[@]}" \
+            > ../aviso-report.md
 
       - name: Create no-change report
         if: steps.changed.outputs.any_changed != 'true'
@@ -55,11 +127,14 @@ jobs:
       - name: Add report to workflow summary
         if: always()
         shell: bash
-        run: cat aviso-report.md >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          if [[ -f aviso-report.md ]]; then
+            cat aviso-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Comment on pull request
-        if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && steps.changed.outcome == 'success'
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: aviso-validation
           path: aviso-report.md

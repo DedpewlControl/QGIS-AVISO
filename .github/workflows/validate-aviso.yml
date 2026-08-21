@@ -59,7 +59,7 @@ jobs:
 
       - name: Comment on pull request
         if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: aviso-validation
           path: aviso-report.md

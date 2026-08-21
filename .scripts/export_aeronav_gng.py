@@ -57,30 +57,27 @@ EXPECTED_FILES = ("REGIONS", "GEO", "FREETEXT")
 
 REGION_COLORS = {
     "background": "COLOR_AoRground1",
-    "taxiway": "COLOR_HardSurface1",
+    "taxiway": "COLOR_HardSurface2",
     "grass": "COLOR_GrasSurface",
-    "unused": "COLOR_HardSurface2",
+    "unused": "COLOR_HardSurface4",
     "runway": "COLOR_RunwayConcrete",
     "grass_taxiway": "COLOR_GrasSurface2",
     "grass_runway": "COLOR_RunwayGrass",
-    "ihp": "COLOR_TaxiwayBorder",
-    "cati": "COLOR_Holding",
-    "catiii": "COLOR_Stopbar",
-    "ret": "COLOR_TaxiwayPurple",
-    "apron": "COLOR_ApronSurface",
-    "deice": "COLOR_AoRground2",
+    "ihp": "COLOR_TaxiwayOrange",
+    "cati": "COLOR_Stopbar",
+    "catiii": "COLOR_TaxiwayOrange",
+    "apron": "COLOR_HardSurface3",
     "building": "COLOR_Building",
 }
 
 GEO_COLORS = {
-    "twy_centerline": "COLOR_TaxiwayGrey",
-    "runway_marking": "COLOR_RunwayBorder",
+    "twy_centerline": "COLOR_Taxiway",
     "orange": "COLOR_TaxiwayOrange",
     "blue": "COLOR_TaxiwayBlue",
-    "direction_red": "COLOR_Landmark1",
-    "direction_green": "COLOR_Landmark2",
-    "direction_yellow": "COLOR_Landmark3",
-    "gate_centerline": "COLOR_ParkPos",
+    "direction_red": "COLOR_TaxiwayBrown",
+    "direction_green": "COLOR_TaxiwayGreen",
+    "direction_yellow": "COLOR_Taxiway",
+    "gate_centerline": "COLOR_Taxiway",
     "gate_unused": "COLOR_ParkPosUnused",
 }
 
